@@ -8,7 +8,7 @@
 2. Pull the docker image from `williamhpark/htn-be-challenge`. Verify that the `htn-be-challenge` image was successfully pulled using the `docker images` command
 3. Run `docker run williamhpark/htn-be-challenge`. The local server should run on `http://127.0.0.1:8000`
 
-### Manual setup:
+### Manual setup
 
 1. If you have issues using the Docker image, pull the code from this Github repo onto your local system
 2. Navigate to this project's root directory
