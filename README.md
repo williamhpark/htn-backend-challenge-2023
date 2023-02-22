@@ -46,7 +46,7 @@ If you run into any issues while setting up or running the server, please let me
 
 ## Notes on the API
 
-- I set up the API endpoints requested in the challenge description (marked with a **\*** in the API routes descriptions), then added a few additional endpoints providing additional CRUD functionality to the `/users` and `/users/:email` routes as well as a few endpoints related to events at the hackathon that users "scan" into.
+- I set up the API endpoints requested in the challenge description (marked with a **\*** in the API routes descriptions), then added a few endpoints providing additional CRUD functionality to the `/users` and `/users/:email` routes as well as a few endpoints related to events at the hackathon that users "scan" into.
 
 - While you can update the user's skills using the `PUT /users/:email` endpoint, you cannot update the events that they've attended (or in other words, "scan" a user into an event). I thought it made sense to handle this in a separate endpoint, `POST /users/events/:email`.
 

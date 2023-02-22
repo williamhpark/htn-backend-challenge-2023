@@ -269,6 +269,7 @@ class SkillsResource(Resource):
         skills = (
             db.session.query(Skill.skill, func.count(Skill.skill).label("count"))
             .group_by(Skill.skill)
+            .order_by(func.count(Skill.skill).desc())
             .all()
         )
 
@@ -310,6 +311,7 @@ class EventsResource(Resource):
                 Event.event, Event.category, func.count(Event.event).label("count")
             )
             .group_by(Event.event)
+            .order_by(func.count(Event.event).desc())
             .all()
         )
 

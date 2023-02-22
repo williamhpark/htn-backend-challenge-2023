@@ -1,0 +1,9 @@
+version: "3"
+services:
+  api:
+    platform: linux/amd64
+    build:
+      context: .
+    image: williamhpark/htn-be-challenge:latest
+    ports:
+      - 8000:5000
