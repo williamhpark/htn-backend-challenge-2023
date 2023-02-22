@@ -1,0 +1,37 @@
+[
+    {
+        "id": 1,
+        "event": "Frontend development with React",
+        "category": "Workshop"
+    },
+    {
+        "id": 2,
+        "event": "Backend development with Express",
+        "category": "Workshop"
+    },
+    {
+        "id": 3,
+        "event": "Databases with SQLite",
+        "category": "Workshop"
+    },
+    {
+        "id": 4,
+        "event": "Lunch",
+        "category": "Food"
+    },
+    {
+        "id": 5,
+        "event": "Dinner",
+        "category": "Food"
+    },
+    {
+        "id": 6,
+        "event": "Bubble soccer",
+        "category": "Activity"
+    },
+    {
+        "id": 7,
+        "event": "Physical: 100",
+        "category": "Activity"
+    }
+]

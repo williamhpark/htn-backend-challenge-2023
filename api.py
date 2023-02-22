@@ -1,3 +1,4 @@
+import json
 import os
 
 from marshmallow import Schema, fields
@@ -32,6 +33,9 @@ init_db()
 # Initialize the REST API
 api = Api(app)
 
+# Set list of events at the Hacakthon
+EVENTS = json.load(open("./mock_data/events_data.json"))
+
 
 class UsersResource(Resource):
     # GET /users
@@ -54,14 +58,56 @@ class UsersResource(Resource):
 
         return users, 200
 
+    # POST /users
+    def post(self):
+        body = request.get_json()
+
+        name = body.get("name")
+        company = body.get("company")
+        email = body.get("email")
+        phone = body.get("phone")
+
+        # Check for all required body fields
+        if not (name and company and email and phone):
+            return "Missing fields in body", 400
+
+        # Check if the user is already registered
+        existing_user = User.query.filter_by(email=email).first()
+        if existing_user:
+            return f"User '{email}' already exists", 400
+
+        # Add the new user to the database
+        user = User(name=name, company=company, email=email, phone=phone)
+        db.session.add(user)
+        db.session.commit()
+
+        # Add the skills to the skills database table
+        skills = body.get("skills")
+        if skills:
+            for skill in skills:
+                # If data is missing from the skill, skip
+                if not (skill.get("skill") and skill.get("rating")):
+                    return "Invalid skill entry provided", 400
+
+                new_skill = Skill(
+                    user_id=user.id,
+                    skill=skill.get("skill"),
+                    rating=skill.get("rating"),
+                )
+                db.session.add(new_skill)
+
+        db.session.commit()
+
+        return f"User {email} was successfully registered", 200
+
 
 class UserResource(Resource):
-    # GET /users/<email>
+    # GET /users/:email
     def get(self, email):
         user = User.query.filter_by(email=email).first()
 
         if not user:
-            return f"The user '{email}' does not exist", 404
+            return f"The user '{email}' does not exist", 400
 
         skills = []
         for skill in Skill.query.filter_by(user_id=user.id).all():
@@ -79,46 +125,73 @@ class UserResource(Resource):
             200,
         )
 
-    # PUT /users/<email>
+    # PUT /users/:email
     def put(self, email):
         user = User.query.filter_by(email=email).first()
 
         if not user:
-            return f"The user '{email}' does not exist", 404
+            return f"The user '{email}' does not exist", 400
 
         json_body = request.get_json()
         if json_body:
-            if json_body.get("name"):
-                user.name = json_body.get("name")
-            if json_body.get("company"):
-                user.company = json_body.get("company")
-            if json_body.get("email"):
-                user.email = json_body.get("email")
-            if json_body.get("phone"):
-                user.phone = json_body.get("phone")
-            if json_body.get("skills"):
-                for skill in json_body.get("skills"):
-                    if not skill.get("rating"):
-                        return "No rating provided", 400
+            new_name = json_body.get("name")
+            new_company = json_body.get("company")
+            new_email = json_body.get("email")
+            new_phone = json_body.get("phone")
+            new_skills = json_body.get("skills")
 
-                    existing_skill = Skill.query.filter_by(
-                        user_id=user.id, skill=skill.get("skill")
-                    ).first()
-                    if existing_skill:
-                        existing_skill.rating = skill.get("rating")
-                    else:
-                        new_skill = Skill(
-                            user_id=user.id,
-                            skill=skill.get("skill"),
-                            rating=skill.get("rating"),
-                        )
-                        db.session.add(new_skill)
+            if new_email:
+                existing_user = User.query.filter_by(email=new_email).first()
+                if existing_user:
+                    return (
+                        f"Update failed, user with email '{new_email}' already exists",
+                        400,
+                    )
+
+                user.email = new_email
+            if new_name:
+                user.name = new_name
+            if new_company:
+                user.company = new_company
+            if new_phone:
+                user.phone = new_phone
+            if new_skills:
+                # Purge all existing skills for the user
+                existing_skills = Skill.query.filter_by(user_id=user.id).all()
+                for skill in existing_skills:
+                    db.session.delete(skill)
+
+                db.session.commit()
+
+                # Add the new skills the database
+                for skill in new_skills:
+                    if not (skill.get("skill") and skill.get("rating")):
+                        return "Invalid skill entry provided", 400
+
+                    new_skill = Skill(
+                        user_id=user.id,
+                        skill=skill.get("skill"),
+                        rating=skill.get("rating"),
+                    )
+                    db.session.add(new_skill)
 
             db.session.commit()
 
             return f"Successfully updated user '{email}'", 200
 
         return "Could not update user '{email}'", 400
+
+    # DELETE /users/:email
+    def delete(self, email):
+        user = User.query.filter_by(email=email).first()
+
+        if not user:
+            return f"The user '{email}' does not exist", 404
+
+        db.session.delete(user)
+        db.session.commit()
+
+        return f"Successfully deleted user '{email}'", 200
 
 
 class SkillsQuerySchema(Schema):

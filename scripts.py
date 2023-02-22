@@ -12,7 +12,7 @@ def init_db():
 
         # Populate database with JSON fake user profile data
 
-        users_json = json.load(open("HTN_2023_BE_Challenge_Data.json"))
+        users_json = json.load(open("./mock_data/HTN_2023_BE_Challenge_Data.json"))
 
         user_columns = ["name", "company", "email", "phone"]
         skill_columns = ["skill", "rating"]
