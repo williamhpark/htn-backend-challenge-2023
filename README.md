@@ -2,13 +2,13 @@
 
 ## Setting up and running the server
 
-Docker setup:
+### Docker setup
 
 1. Ensure that Docker is installed on your system
 2. Pull the docker image from `williamhpark/htn-be-challenge`. Verify that the `htn-be-challenge` image was successfully pulled using the `docker images` command
 3. Run `docker run williamhpark/htn-be-challenge`. The local server should run on `http://127.0.0.1:8000`
 
-Manual setup:
+### Manual setup:
 
 1. If you have issues using the Docker image, pull the code from this Github repo onto your local system
 2. Navigate to this project's root directory
@@ -54,7 +54,7 @@ If you run into any issues while setting up or running the server, please let me
 
 - I decided to use the user's email as the piece of data that identifies a single user, since each user's email should be unique. I noticed that there were one or two instances of reused emails in the `HTN_2023_BE_Challenge_Data.json` file, and while populating the database I thought it made most sense to skip the user instances with reused emails.
 
-- Basic error checking was included for all API routes. For instance, if any API request is made for a specific user and that user does not exist, then a `400 Bad Request` error should be returned.
+- Basic error checking was included for all API routes. For instance, if any API request is made for a specific user and that user does not exist, or a client tries to update a user's email to one already associated with another existing user, then a `400 Bad Request` error should be returned.
 
 ## Potential improvements
 
