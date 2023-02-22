@@ -2,7 +2,21 @@
 
 ## Setting up and running the server
 
-Pull the docker image from `<>`. In the project's root directory, run `docker compose up`.
+Docker setup:
+
+1. Ensure that Docker is installed on your system
+2. Pull the docker image from `williamhpark/htn-be-challenge`. Verify that the `htn-be-challenge` image was successfully pulled using the `docker images` command
+3. Run `docker run williamhpark/htn-be-challenge`. The local server should run on `http://127.0.0.1:8000`
+
+Manual setup:
+
+1. If you have issues using the Docker image, pull the code from this Github repo onto your local system
+2. Navigate to this project's root directory
+3. Ensure that Python 3 is installed on your system (I was using Python 3.9.15)
+4. Create a Python virtual environment: `python -m venv htn-venv`
+5. Activate the virtual environment: `source htn-venv/bin/activate`
+6. Install the required dependencies: `pip install -r requirements.txt`
+7. Run `flask run`. The local server should run on `http://127.0.0.1:5000`
 
 If you run into any issues while setting up or running the server, please let me know.
 
