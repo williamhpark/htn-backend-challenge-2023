@@ -17,7 +17,8 @@
 4. Create a Python virtual environment: `python -m venv htn-venv`
 5. Activate the virtual environment: `source htn-venv/bin/activate`
 6. Install the required dependencies: `pip install -r requirements.txt`
-7. Run `flask run`. The local server should run on `http://127.0.0.1:5000`
+7. Create a `db` directory: `mkdir db`
+8. Run `flask run`. The local server should run on `http://127.0.0.1:5000`
 
 If you run into any issues while setting up or running the server, please let me know.
 
