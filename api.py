@@ -23,7 +23,7 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db = SQLAlchemy(app)
 
 # Import the User database model
-from models import User, Skill
+from models import Event, Skill, User
 from scripts import init_db
 
 # Populate the SQLite database with the data from HTN_2023_BE_Challenge_Data.json
@@ -46,6 +46,10 @@ class UsersResource(Resource):
             for skill in Skill.query.filter_by(user_id=user.id).all():
                 skills.append({"skill": skill.skill, "rating": skill.rating})
 
+            events = []
+            for event in Event.query.filter_by(user_id=user.id).all():
+                events.append({"event": event.event, "category": event.category})
+
             user = {
                 "id": user.id,
                 "name": user.name,
@@ -53,6 +57,7 @@ class UsersResource(Resource):
                 "email": user.email,
                 "phone": user.phone,
                 "skills": skills,
+                "events": events,
             }
             users.append(user)
 
@@ -98,7 +103,7 @@ class UsersResource(Resource):
 
         db.session.commit()
 
-        return f"User {email} was successfully registered", 200
+        return f"User '{email}' was successfully registered", 200
 
 
 class UserResource(Resource):
@@ -113,6 +118,10 @@ class UserResource(Resource):
         for skill in Skill.query.filter_by(user_id=user.id).all():
             skills.append({"skill": skill.skill, "rating": skill.rating})
 
+        events = []
+        for event in Event.query.filter_by(user_id=user.id).all():
+            events.append({"event": event.event, "category": event.category})
+
         return (
             {
                 "id": user.id,
@@ -121,6 +130,7 @@ class UserResource(Resource):
                 "email": user.email,
                 "phone": user.phone,
                 "skills": skills,
+                "events": events,
             },
             200,
         )
@@ -132,13 +142,13 @@ class UserResource(Resource):
         if not user:
             return f"The user '{email}' does not exist", 400
 
-        json_body = request.get_json()
-        if json_body:
-            new_name = json_body.get("name")
-            new_company = json_body.get("company")
-            new_email = json_body.get("email")
-            new_phone = json_body.get("phone")
-            new_skills = json_body.get("skills")
+        body = request.get_json()
+        if body:
+            new_name = body.get("name")
+            new_company = body.get("company")
+            new_email = body.get("email")
+            new_phone = body.get("phone")
+            new_skills = body.get("skills")
 
             if new_email:
                 existing_user = User.query.filter_by(email=new_email).first()
@@ -186,7 +196,7 @@ class UserResource(Resource):
         user = User.query.filter_by(email=email).first()
 
         if not user:
-            return f"The user '{email}' does not exist", 404
+            return f"The user '{email}' does not exist", 400
 
         db.session.delete(user)
         db.session.commit()
@@ -194,17 +204,68 @@ class UserResource(Resource):
         return f"Successfully deleted user '{email}'", 200
 
 
+class UserEventsResource(Resource):
+    # GET /users/events/:email
+    def get(self, email):
+        user = User.query.filter_by(email=email).first()
+
+        if not user:
+            return f"The user '{email}' does not exist", 400
+
+        events = []
+        for event in Event.query.filter_by(user_id=user.id).all():
+            events.append({"event": event.event, "category": event.category})
+
+        return events, 200
+
+    # POST /users/events/:email
+    def post(self, email):
+        user = User.query.filter_by(email=email).first()
+
+        if not user:
+            return f"The user '{email}' does not exist", 400
+
+        body = request.get_json()
+        event = body.get("event")
+        category = body.get("category")
+
+        if not (event and category):
+            return "Missing fields in body", 400
+
+        # Check if the event is one from the approved list
+        if body not in EVENTS:
+            return "Invalid event data in body", 400
+
+        # Check to see if the user is already registered to the event
+        existing_event = Event.query.filter_by(
+            user_id=user.id, event=event, category=category
+        ).first()
+        if existing_event:
+            return f"User '{email}' is already registered to event"
+
+        # Add the new event
+        new_event = Event(user_id=user.id, event=event, category=category)
+        db.session.add(new_event)
+        db.session.commit()
+
+        return f"Successfully registered event to user '{email}'"
+
+
 class SkillsQuerySchema(Schema):
     min_frequency = fields.Str(required=False)
     max_frequency = fields.Str(required=False)
 
 
-schema = SkillsQuerySchema()
+skills_schema = SkillsQuerySchema()
 
 
 class SkillsResource(Resource):
     # GET /skills
     def get(self):
+        errors = skills_schema.validate(request.args)
+        if errors:
+            return "Invalid request arguments", 400
+
         skills = (
             db.session.query(Skill.skill, func.count(Skill.skill).label("count"))
             .group_by(Skill.skill)
@@ -228,9 +289,59 @@ class SkillsResource(Resource):
         return [{"skill": row[0], "count": row[1]} for row in skills], 200
 
 
+class EventsQuerySchema(Schema):
+    category = fields.Str(required=False)
+    min_frequency = fields.Str(required=False)
+    max_frequency = fields.Str(required=False)
+
+
+events_schema = EventsQuerySchema()
+
+
+class EventsResource(Resource):
+    # GET /events
+    def get(self):
+        errors = events_schema.validate(request.args)
+        if errors:
+            return "Invalid request arguments", 400
+
+        events = (
+            db.session.query(
+                Event.event, Event.category, func.count(Event.event).label("count")
+            )
+            .group_by(Event.event)
+            .all()
+        )
+
+        # Filter out events that don't match the specified category (if applicable)
+        category = request.args.getlist("category")
+        if category:
+            events = list(filter(lambda event: (event.category == category[0]), events))
+
+        # Filter out events with a count less than min_frequency (if applicable)
+        min_frequency = request.args.getlist("min_frequency")
+        if min_frequency:
+            events = list(
+                filter(lambda event: (event.count >= int(min_frequency[0])), events)
+            )
+
+        # Filter out events with a count greater than max_frequency (if applicable)
+        max_frequency = request.args.getlist("max_frequency")
+        if max_frequency:
+            events = list(
+                filter(lambda event: (event.count <= int(max_frequency[0])), events)
+            )
+
+        return [
+            {"event": row[0], "category": row[1], "count": row[2]} for row in events
+        ], 200
+
+
 api.add_resource(UsersResource, "/users")
 api.add_resource(UserResource, "/users/<string:email>")
+api.add_resource(UserEventsResource, "/users/events/<string:email>")
 api.add_resource(SkillsResource, "/skills")
+api.add_resource(EventsResource, "/events")
 
 if __name__ == "__main__":
     app.run(debug=True)
