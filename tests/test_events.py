@@ -98,7 +98,7 @@ def test_get_events():
         if c not in categories:
             categories.append(c)
     # Only one category of results should have been returned
-    assert len(categories) == 1
+    assert categories == [category]
 
     # GET /events?min_frequency=min_frequency
     # Retrieve a list of events with min_frequency filter applied
