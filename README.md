@@ -30,6 +30,8 @@ If you run into any issues while setting up or running the server, please let me
 
 - The server was containerized using Docker
 
+- The automated unit tests were written using the pytest framework
+
 ## API routes
 
 - `GET /users`: Retrieve all users\*
@@ -46,6 +48,10 @@ If you run into any issues while setting up or running the server, please let me
 
 - `GET /events?category=category&min_frequency=min_frequency&max_frequency=max_frequency`: Retrieve a list of all the events at the hackathon with a count of users who attended, with optional category, min_frequency, and max_frequency filters
 
+## Testing instructions
+
+In the project's root directory, run `pytest`. All automated unit tests should run.
+
 ## Notes on development
 
 - I set up the required API endpoints requested in the challenge description (marked with a **\*** in the API routes descriptions), then added a few endpoints providing additional CRUD functionality to the `/users` and `/users/:email` routes as well as a few endpoints related to events at the hackathon that users "scan" into
@@ -60,12 +66,10 @@ If you run into any issues while setting up or running the server, please let me
 
 - Basic error checking was included for all API routes. For instance, if any API request is made for a specific user and that user does not exist, or a client tries to update a user's email to one already associated with another existing user, then a `400 Bad Request` error should be returned
 
-- All functional testing was done using Postman
-
 ## Potential improvements
 
-- Add unit tests (didn't have enough time to write them unfortunately)
 - Encode and decode the email params passed in the API URLs. Generally, symbols like `@` should not be passed in URLs since they don't fit a format that can be transmitted over the internet. So when passing an email in the URL, it should be encoded (e.g. `test@gmail.com` -> `test%40gmail.com`) then decoded when used in the code
+- Secure the API endpoints. Since the API deals with somewhat sensitive user data, in a real application we would want only authenticated users to be able to make requests to the API. This authentication could be implemented using JSON Web Tokens
 - Return more intentional response status codes rather than just 200 or 400
 - Use a more powerful database, such as MySQL or PostgreSQL. One of the major limitations of SQLite is the fact that it has little support for concurrency, which is important for applications such as this one where we could expect multiple requests and changes to the database occuring at the same time
 - Abstract some of the code better. For example, checking if a user with a specific email exists and returning a `400 Bad Request` if they don't exist was implemented several times throughout the API. Abstracting this, as well as some other code, into helper functions would make the code cleaner and more reusable

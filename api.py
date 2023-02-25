@@ -112,7 +112,7 @@ class UserResource(Resource):
         user = User.query.filter_by(email=email).first()
 
         if not user:
-            return f"The user '{email}' does not exist", 400
+            return f"User '{email}' does not exist", 400
 
         skills = []
         for skill in Skill.query.filter_by(user_id=user.id).all():
@@ -140,7 +140,7 @@ class UserResource(Resource):
         user = User.query.filter_by(email=email).first()
 
         if not user:
-            return f"The user '{email}' does not exist", 400
+            return f"User '{email}' does not exist", 400
 
         body = request.get_json()
         if body:
@@ -187,7 +187,7 @@ class UserResource(Resource):
 
             db.session.commit()
 
-            return f"Successfully updated user '{email}'", 200
+            return f"User '{email}' was successfully updated", 200
 
         return "Could not update user '{email}'", 400
 
@@ -196,12 +196,12 @@ class UserResource(Resource):
         user = User.query.filter_by(email=email).first()
 
         if not user:
-            return f"The user '{email}' does not exist", 400
+            return f"User '{email}' does not exist", 400
 
         db.session.delete(user)
         db.session.commit()
 
-        return f"Successfully deleted user '{email}'", 200
+        return f"User '{email}' was successfully deleted", 200
 
 
 class UserEventsResource(Resource):
@@ -210,7 +210,7 @@ class UserEventsResource(Resource):
         user = User.query.filter_by(email=email).first()
 
         if not user:
-            return f"The user '{email}' does not exist", 400
+            return f"User '{email}' does not exist", 400
 
         events = []
         for event in Event.query.filter_by(user_id=user.id).all():
@@ -223,7 +223,7 @@ class UserEventsResource(Resource):
         user = User.query.filter_by(email=email).first()
 
         if not user:
-            return f"The user '{email}' does not exist", 400
+            return f"User '{email}' does not exist", 400
 
         body = request.get_json()
         event = body.get("event")

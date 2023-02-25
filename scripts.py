@@ -7,6 +7,9 @@ from api import app, db, User, Skill
 
 def init_db():
     with app.app_context():
+        # Clear the database tables if they already exist
+        db.drop_all()
+
         # Create all database tables
         db.create_all()
 
