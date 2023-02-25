@@ -241,14 +241,14 @@ class UserEventsResource(Resource):
             user_id=user.id, event=event, category=category
         ).first()
         if existing_event:
-            return f"User '{email}' is already registered to event"
+            return f"User '{email}' is already registered to event", 400
 
         # Add the new event
         new_event = Event(user_id=user.id, event=event, category=category)
         db.session.add(new_event)
         db.session.commit()
 
-        return f"Successfully registered event to user '{email}'"
+        return f"Successfully registered event to user '{email}'", 200
 
 
 class SkillsQuerySchema(Schema):

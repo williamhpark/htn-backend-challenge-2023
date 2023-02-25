@@ -34,8 +34,8 @@ def test_get_user():
     res.pop("events")
     assert res == EXISTING_USER_DATA
 
-    # Failed attempt to retrieve the data for a non-existent email
     # GET /users/:email
+    # Failed attempt to retrieve the data for a non-existent email
     response = app.test_client().get(f"/users/{NON_EXISTING_USER_EMAIL}")
     res = json.loads(response.data.decode("utf-8"))
     assert response.status_code == 400
@@ -103,7 +103,7 @@ def test_update_user():
 
 
 def test_delete_user():
-    # PUT /users/:email
+    # DELETE /users/:email
     # Successful deletion
     response = app.test_client().delete(f"/users/{NEW_USER_EMAIL}")
     res = json.loads(response.data.decode("utf-8"))

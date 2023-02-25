@@ -20,4 +20,9 @@ EXISTING_USER_DATA = {
     ],
 }
 
+EXISTING_USER_EMAIL_2 = "terry81@example.org"
+EXISTING_USER_EMAIL_3 = "mitchellalyssa@example.org"
+
 NON_EXISTING_USER_EMAIL = "doesnotexist@gmail.com"
+
+INVALID_EVENT = {"event": "Not a real event", "category": "Workshop"}
