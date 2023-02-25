@@ -20,6 +20,8 @@
 7. Create a `db` directory: `mkdir db`
 8. Run `flask run`. The local server should run on `http://127.0.0.1:5000`
 
+**Testing instructions:** With the Python virtual environment activated, run `pytest` in the project's root directory. All automated tests should run.
+
 If you run into any issues while setting up or running the server, please let me know.
 
 ## Choice of technology
@@ -47,10 +49,6 @@ If you run into any issues while setting up or running the server, please let me
 - `GET /skills?min_frequency=min_frequency&max_frequency=max_frequency`: Retrieve the number of users that have each skill, with optional min_frequency and max_frequency filters\*
 
 - `GET /events?category=category&min_frequency=min_frequency&max_frequency=max_frequency`: Retrieve a list of all the events at the hackathon with a count of users who attended, with optional category, min_frequency, and max_frequency filters
-
-## Testing instructions
-
-In the project's root directory, run `pytest`. All automated unit tests should run.
 
 ## Notes on development
 
